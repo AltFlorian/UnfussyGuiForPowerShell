@@ -1,6 +1,6 @@
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
-[void][Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic')
+[void] [Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic')
 
 function Show-UnfussyMessageBox () {
     <#
@@ -88,8 +88,57 @@ function Read-UnfussyInputBox () {
     return $input
 }
 
+function Invoke-UnfussyFilePicker () {
+    <#
+    .SYNOPSIS
+    Displays FileDialog to select a file.
+
+    .DESCRIPTION
+    Displays FileDialog to select a file and returns the path as a string.
+
+    .PARAMETER initialDirectory,
+    Directory Path to open the FileDialog.
+
+    .PARAMETER filterFileType
+    Filter by filetype.
+
+    .Example
+    Invoke-UnfussyFilePicker -initialDirectory "C:\temp" -filterFileType "Documents (*.docx)|*.docx|SpreadSheet (*.xlsx)|*.xlsx"
+    #>
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$false, Position=0)]
+        [string] $initialDirectory = "%USERPROFILE%",
+        [Parameter(Mandatory=$false, Position=1)]
+        [string] $filterFileType = "All files (*.*)|*.*"
+    )
+
+    $filePicker = New-Object System.Windows.Forms.OpenFileDialog -Property @{ 
+        InitialDirectory = $initialDirectory
+        Filter = $filterFileType
+    }
+    $null = $filePicker.ShowDialog()
+    return $filePicker.FileName
+}
+
+function Invoke-UnfussyFolderPicker () {
+    <#
+    .SYNOPSIS
+    Displays FolderDialog to select a file.
+
+    .DESCRIPTION
+    Displays FolderDialog to select a folder and returns the path as a string.
+
+    .Example
+    Invoke-UnfussyFolderPicker
+    #>
+
+    $folderPicker = New-Object System.Windows.Forms.FolderBrowserDialog
+    $null = $folderPicker.ShowDialog()
+    return $folderPicker.SelectedPath
+}
 #* To Do's:
-# todo folder/file picker, date/time picker, pw input (hidden), dropdown, large textbox
+# todo date/time picker, pw input (hidden), dropdown, large textbox
 # todo better looking ui
 
-Export-ModuleMember -Function Show-UnfussyMessageBox,Confirm-UnfussyDialog,Read-UnfussyInputBox
+Export-ModuleMember -Function Show-UnfussyMessageBox,Confirm-UnfussyDialog,Read-UnfussyInputBox,Invoke-UnfussyFilePicker,Invoke-UnfussyFolderPicker
